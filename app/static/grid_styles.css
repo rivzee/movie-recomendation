@@ -1,0 +1,169 @@
+/* Grid Styles - Anime Card Layout */
+
+.anime-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+/* Anime Card */
+.anime-card {
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                box-shadow 0.4s ease,
+                border-color 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.anime-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(139, 92, 246, 0.3);
+    border-color: rgba(139, 92, 246, 0.6);
+    z-index: 10;
+}
+
+/* Cover Image */
+.anime-cover {
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    transition: filter 0.3s ease;
+}
+
+.anime-card:hover .anime-cover {
+    filter: brightness(1.15) saturate(1.1);
+}
+
+/* Card Info Section */
+.anime-info {
+    padding: 18px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: linear-gradient(to top, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.7));
+}
+
+.anime-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+    line-height: 1.4;
+    color: white;
+    display: -webkit-box;
+    overflow: hidden;
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+/* Metadata Row */
+.anime-meta {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.meta-badge {
+    background: rgba(255, 255, 255, 0.12);
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 0.7rem;
+    color: #e2e8f0;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* Genre Badges */
+.anime-genres {
+    margin-top: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+/* Score Badge (Overlay) */
+.score-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(0, 0, 0, 0.85);
+    color: #4ade80;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-weight: 700;
+    backdrop-filter: blur(8px);
+    font-size: 0.9rem;
+    border: 1.5px solid rgba(74, 222, 128, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Fallback for Missing Image */
+.no-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    color: #475569;
+    font-size: 4rem;
+    font-weight: 700;
+    height: 320px;
+}
+
+/* MAL Link Button */
+.mal-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    margin-top: 10px;
+    background: rgba(34, 211, 238, 0.1);
+    border: 1px solid rgba(34, 211, 238, 0.3);
+    border-radius: 8px;
+    color: #22d3ee;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.mal-link:hover {
+    background: rgba(34, 211, 238, 0.2);
+    border-color: #22d3ee;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(34, 211, 238, 0.2);
+}
+
+.mal-link svg {
+    flex-shrink: 0;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .anime-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 16px;
+    }
+    
+    .anime-cover {
+        height: 240px;
+    }
+    
+    .anime-title {
+        font-size: 0.95rem;
+    }
+}

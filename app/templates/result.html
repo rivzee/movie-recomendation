@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results - Anime Recommender</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=5" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='grid_styles.css') }}?v=5" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <div class="result-header">
+            <div>
+                <h2>Result For: <span style="color: var(--accent)">{{ query }}</span></h2>
+                <div style="color: var(--text-muted)">Matched: {{ matched }} • Found {{ results|length }} results</div>
+            </div>
+            <a href="/" class="back-link">
+                <span>←</span> Back to Search
+            </a>
+        </div>
+
+        <div class="anime-grid">
+            {% for r in results %}
+            <div class="anime-card">
+                <div style="position: relative;">
+                    {% if r.image %}
+                    <img src="{{ r.image }}" class="anime-cover" alt="{{ r.title }}">
+                    {% else %}
+                    <div class="anime-cover no-image"><span>?</span></div>
+                    {% endif %}
+                    <span class="score-badge">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-right: 4px; color: #facc15;">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                        </svg>
+                        {{ r.similarity }}
+                    </span>
+                </div>
+                
+                <div class="anime-info">
+                    <div class="anime-title">{{ r.title }}</div>
+                    <div class="anime-meta">
+                        <span class="meta-badge" style="background: rgba(34, 211, 238, 0.15); color: #22d3ee;">{{ r.type }}</span>
+                        <span class="meta-badge">{{ r.episodes }}</span>
+                        <span class="meta-badge" style="background: rgba(139, 92, 246, 0.15); color: #a78bfa;">{{ r.status }}</span>
+                        <span class="meta-badge" style="background: rgba(251, 191, 36, 0.15); color: #fbbf24;">{{ r.premiered }}</span>
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;">{{ r.studio }}</div>
+                    <div class="anime-genres">
+                        {% for g in r.genres.split(',') %}
+                        <span class="badge">{{ g.strip() }}</span>
+                        {% endfor %}
+                    </div>
+                    
+                    <a href="{{ r.mal_link }}" target="_blank" class="mal-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                        View on MAL
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="chart-container">
+            <h3 style="text-align: center; margin-bottom: 20px;">Analysis Chart</h3>
+            <img src="{{ url_for('static', filename=chart) }}" alt="Similarity Chart" />
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+             <a href="/" class="back-link" style="justify-content: center;">← Start New Search</a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,81 +1,574 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
+<html lang="id">
+
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Results - Anime Recommender</title>
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=5" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='grid_styles.css') }}?v=5" />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  </head>
-  <body>
+    <title>🎬 Hasil Pencarian "{{ matched }}"</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #e50914;
+            --primary-dark: #b20710;
+            --primary-glow: rgba(229, 9, 20, 0.4);
+            --bg-dark: #0a0a0a;
+            --bg-card: rgba(25, 25, 25, 0.9);
+            --bg-glass: rgba(255, 255, 255, 0.05);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent: #f5c518;
+            --accent-glow: rgba(245, 197, 24, 0.3);
+            --success: #46d369;
+            --gradient-primary: linear-gradient(135deg, #e50914 0%, #ff6b6b 100%);
+            --gradient-dark: linear-gradient(180deg, #0a0a0a 0%, #1a1a2e 100%);
+            --gradient-card: linear-gradient(145deg, rgba(30, 30, 30, 0.95) 0%, rgba(15, 15, 15, 0.98) 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: var(--gradient-dark);
+        }
+
+        .navbar {
+            background: rgba(10, 10, 10, 0.9);
+            backdrop-filter: blur(20px);
+            padding: 18px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .nav-search {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+            max-width: 500px;
+            margin: 0 30px;
+        }
+
+        .nav-search input {
+            flex: 1;
+            padding: 12px 18px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .nav-search input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .nav-search button {
+            padding: 12px 25px;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-link {
+            padding: 10px 20px;
+            background: var(--bg-glass);
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-link:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 50px 20px;
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 40px;
+            background: var(--gradient-card);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .result-header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .result-header h1 span {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .result-header p {
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        .result-count {
+            display: inline-block;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 8px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            box-shadow: 0 8px 25px var(--primary-glow);
+        }
+
+        .message {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-secondary);
+        }
+
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .movie-card {
+            background: var(--gradient-card);
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            transition: all 0.4s ease;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .movie-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4), 0 0 30px var(--primary-glow);
+            border-color: var(--primary);
+        }
+
+        .movie-poster {
+            width: 130px;
+            min-height: 195px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .movie-poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .poster-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            width: 100%;
+            padding: 15px;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(229, 9, 20, 0.1), rgba(102, 126, 234, 0.1));
+        }
+
+        .poster-placeholder .poster-icon {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+            opacity: 0.7;
+        }
+
+        .poster-placeholder .poster-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .poster-placeholder .poster-year {
+            font-size: 0.7rem;
+            color: var(--accent);
+            margin-top: 6px;
+        }
+
+        .movie-info {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            flex: 1;
+        }
+
+        .movie-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .movie-year {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .movie-genres {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        .movie-stats {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: var(--bg-glass);
+        }
+
+        .stat.rating {
+            color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        .stat.similarity {
+            color: var(--success);
+            background: rgba(70, 211, 105, 0.2);
+        }
+
+        .stat.count {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        .similarity-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+
+        .similarity-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), #4cd964);
+            border-radius: 3px;
+        }
+
+        .chart-section {
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%);
+            border-radius: 24px;
+            padding: 40px;
+            margin-top: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .chart-section h3 {
+            font-size: 1.4rem;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .chart-section img {
+            width: 100%;
+            max-width: 950px;
+            display: block;
+            margin: 0 auto;
+            border-radius: 16px;
+        }
+
+        .new-search {
+            margin-top: 60px;
+            text-align: center;
+            padding: 50px;
+            background: var(--gradient-card);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .new-search h3 {
+            margin-bottom: 25px;
+            font-size: 1.3rem;
+        }
+
+        .new-search-form {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            padding: 16px 25px;
+            font-family: 'Poppins', sans-serif;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.4);
+            color: white;
+            width: 350px;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .search-btn {
+            padding: 16px 40px;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            box-shadow: 0 10px 30px var(--primary-glow);
+        }
+
+        .search-btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .related-searches {
+            margin-top: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .related-tag {
+            padding: 10px 22px;
+            background: var(--bg-glass);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            color: var(--text-secondary);
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+        }
+
+        .related-tag:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        footer {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-secondary);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 60px;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+
+            .nav-search {
+                order: 3;
+                width: 100%;
+                max-width: none;
+                margin: 10px 0 0 0;
+            }
+
+            .movie-card {
+                flex-direction: column;
+            }
+
+            .movie-poster {
+                width: 100%;
+                height: 220px;
+            }
+
+            .movies-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search-input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-animation"></div>
+
+    <nav class="navbar">
+        <a href="/" class="logo">🎬 Movie Recommender</a>
+
+        <form action="/recommend" method="POST" class="nav-search">
+            <input type="text" name="title" placeholder="🔍 Cari film lain..." required>
+            <button type="submit">Cari</button>
+        </form>
+
+        <div class="nav-links">
+            <a href="/" class="nav-link">🏠 Beranda</a>
+            <a href="/browse" class="nav-link">📚 Jelajahi</a>
+        </div>
+    </nav>
+
     <div class="container">
-      <div class="card">
         <div class="result-header">
-            <div>
-                <h2>Result For: <span style="color: var(--accent)">{{ query }}</span></h2>
-                <div style="color: var(--text-muted)">Matched: {{ matched }} • Found {{ results|length }} results</div>
-            </div>
-            <a href="/" class="back-link">
-                <span>←</span> Back to Search
-            </a>
+            <h1>Hasil untuk "<span>{{ matched }}</span>"</h1>
+            <p>Menampilkan film yang cocok dengan pencarian Anda</p>
+            {% if results %}
+            <div class="result-count">🎬 {{ results|length }} film ditemukan</div>
+            {% endif %}
         </div>
 
-        <div class="anime-grid">
-            {% for r in results %}
-            <div class="anime-card">
-                <div style="position: relative;">
-                    {% if r.image %}
-                    <img src="{{ r.image }}" class="anime-cover" alt="{{ r.title }}">
+        {% if message %}
+        <div class="message">
+            <p>{{ message }}</p>
+        </div>
+        {% endif %}
+
+        {% if results %}
+        <div class="movies-grid">
+            {% for movie in results %}
+            <div class="movie-card">
+                <div class="movie-poster">
+                    {% if movie.poster %}
+                    <img src="{{ movie.poster }}" alt="{{ movie.title }}" loading="lazy">
                     {% else %}
-                    <div class="anime-cover no-image"><span>?</span></div>
+                    <div class="poster-placeholder">
+                        <span class="poster-icon">🎬</span>
+                        <span class="poster-title">{{ movie.title[:30] }}</span>
+                        <span class="poster-year">{{ movie.year }}</span>
+                    </div>
                     {% endif %}
-                    <span class="score-badge">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="margin-right: 4px; color: #facc15;">
-                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                        </svg>
-                        {{ r.similarity }}
-                    </span>
                 </div>
-                
-                <div class="anime-info">
-                    <div class="anime-title">{{ r.title }}</div>
-                    <div class="anime-meta">
-                        <span class="meta-badge" style="background: rgba(34, 211, 238, 0.15); color: #22d3ee;">{{ r.type }}</span>
-                        <span class="meta-badge">{{ r.episodes }}</span>
-                        <span class="meta-badge" style="background: rgba(139, 92, 246, 0.15); color: #a78bfa;">{{ r.status }}</span>
-                        <span class="meta-badge" style="background: rgba(251, 191, 36, 0.15); color: #fbbf24;">{{ r.premiered }}</span>
+                <div class="movie-info">
+                    <div>
+                        <div class="movie-title">{{ movie.title }}</div>
+                        {% if movie.year %}
+                        <span class="movie-year">📅 {{ movie.year }}</span>
+                        {% endif %}
+                        <div class="movie-genres">🎭 {{ movie.genres }}</div>
                     </div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;">{{ r.studio }}</div>
-                    <div class="anime-genres">
-                        {% for g in r.genres.split(',') %}
-                        <span class="badge">{{ g.strip() }}</span>
-                        {% endfor %}
+                    <div>
+                        <div class="movie-stats">
+                            {% if movie.rating != 'N/A' %}
+                            <div class="stat rating">⭐ {{ movie.rating }}</div>
+                            {% endif %}
+                            {% if movie.similarity and movie.similarity < 5 %} <div class="stat similarity">🎯 {{
+                                (movie.similarity * 100)|round(1) }}%
+                        </div>
+                        {% endif %}
+                        {% if movie.rating_count > 0 %}
+                        <div class="stat count">👥 {{ movie.rating_count }} votes</div>
+                        {% endif %}
                     </div>
-                    
-                    <a href="{{ r.mal_link }}" target="_blank" class="mal-link">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                            <polyline points="15 3 21 3 21 9"></polyline>
-                            <line x1="10" y1="14" x2="21" y2="3"></line>
-                        </svg>
-                        View on MAL
-                    </a>
+                    {% if movie.similarity and movie.similarity < 5 %} <div class="similarity-bar">
+                        <div class="similarity-fill" style="width: {{ movie.similarity * 100 }}%"></div>
                 </div>
+                {% endif %}
             </div>
+        </div>
+    </div>
+    {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if chart %}
+    <div class="chart-section">
+        <h3>📊 Grafik Perbandingan Rating</h3>
+        <img src="{{ url_for('static', filename=chart) }}?t={{ range(1000000)|random }}" alt="Chart">
+    </div>
+    {% endif %}
+
+    <div class="new-search">
+        <h3>🔍 Cari Film Lainnya</h3>
+        <form action="/recommend" method="POST" class="new-search-form">
+            <input type="text" name="title" class="search-input" placeholder="Masukkan judul film atau genre..."
+                required>
+            <button type="submit" class="search-btn">Cari Film</button>
+        </form>
+
+        <div class="related-searches">
+            {% for genre in genres[:10] %}
+            <button type="button" class="related-tag" onclick="searchGenre('{{ genre }}')">{{ genre }}</button>
             {% endfor %}
         </div>
-
-        <div class="chart-container">
-            <h3 style="text-align: center; margin-bottom: 20px;">Analysis Chart</h3>
-            <img src="{{ url_for('static', filename=chart) }}" alt="Similarity Chart" />
-        </div>
-        
-        <div style="text-align: center; margin-top: 30px;">
-             <a href="/" class="back-link" style="justify-content: center;">← Start New Search</a>
-        </div>
-      </div>
     </div>
-  </body>
+    </div>
+
+    <footer>
+        <p>🎬 <strong>Movie Recommender</strong> - Sistem Rekomendasi Film dengan Machine Learning</p>
+    </footer>
+
+    <script>
+        function searchGenre(genre) {
+            const form = document.querySelector('.new-search-form');
+            form.querySelector('input').value = genre;
+            form.submit();
+        }
+    </script>
+</body>
+
 </html>

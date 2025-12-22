@@ -1,166 +1,694 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anime Recommender</title>
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=5" />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  </head>
-  <body>
-    <!-- Hero Section with Background -->
-    <div class="hero-section">
-      <img src="{{ url_for('static', filename='hero-banner.png') }}" alt="Anime Banner" class="hero-banner">
-      <div class="hero-overlay"></div>
-    </div>
+<html lang="id">
 
-    <div class="container">
-      <h1>Anime Recommender</h1>
-      <p class="subtitle">Discover your next favorite anime by Title or Genre.</p>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎬 Movie Recommender - Temukan Film Favoritmu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --primary: #e50914;
+      --primary-glow: rgba(229, 9, 20, 0.4);
+      --bg-dark: #0a0a0a;
+      --bg-glass: rgba(255, 255, 255, 0.05);
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a0;
+      --accent: #f5c518;
+      --gradient-primary: linear-gradient(135deg, #e50914 0%, #ff6b6b 100%);
+      --gradient-dark: linear-gradient(180deg, #0a0a0a 0%, #1a1a2e 100%);
+      --gradient-card: linear-gradient(145deg, rgba(30, 30, 30, 0.9) 0%, rgba(15, 15, 15, 0.95) 100%);
+    }
 
-      <!-- Stats Counter -->
-      <div class="stats-counter">
-        <span class="stat-number">17,000+</span> Anime in Database
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    .bg-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background: var(--gradient-dark);
+    }
+
+    .hero {
+      position: relative;
+      padding: 80px 20px 60px;
+      text-align: center;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      padding: 8px 20px;
+      background: var(--gradient-primary);
+      border-radius: 30px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      margin-bottom: 15px;
+      background: linear-gradient(135deg, #fff 0%, #e50914 50%, #ff6b6b 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+      margin-bottom: 40px;
+    }
+
+    .hero p strong {
+      color: var(--accent);
+    }
+
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 50px;
+      margin-bottom: 50px;
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 20px 30px;
+      background: var(--bg-glass);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .search-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: var(--gradient-card);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .search-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .search-input-wrapper {
+      position: relative;
+      flex: 1;
+    }
+
+    .search-input-group {
+      display: flex;
+      gap: 15px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 18px 25px;
+      font-size: 1.1rem;
+      font-family: 'Poppins', sans-serif;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      background: rgba(0, 0, 0, 0.4);
+      color: white;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--primary);
+    }
+
+    .autocomplete-results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: rgba(20, 20, 20, 0.98);
+      border-radius: 14px;
+      margin-top: 10px;
+      max-height: 350px;
+      overflow-y: auto;
+      z-index: 100;
+      display: none;
+    }
+
+    .autocomplete-results.show {
+      display: block;
+    }
+
+    .autocomplete-item {
+      padding: 15px 25px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .autocomplete-item:hover {
+      background: var(--primary-glow);
+    }
+
+    .autocomplete-rating {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .search-btn {
+      padding: 18px 50px;
+      background: var(--gradient-primary);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+      box-shadow: 0 10px 30px var(--primary-glow);
+    }
+
+    .search-btn:hover {
+      transform: translateY(-3px);
+    }
+
+    .genre-filter-section {
+      margin-top: 25px;
+      padding-top: 25px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .genre-filter-title {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin-bottom: 15px;
+      text-align: left;
+    }
+
+    .genre-checkboxes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .genre-checkbox {
+      display: none;
+    }
+
+    .genre-label {
+      padding: 10px 20px;
+      background: var(--bg-glass);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 25px;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .genre-label:hover {
+      border-color: var(--primary);
+      color: white;
+    }
+
+    .genre-checkbox:checked+.genre-label {
+      background: var(--gradient-primary);
+      border-color: var(--primary);
+      color: white;
+      box-shadow: 0 4px 15px var(--primary-glow);
+    }
+
+    .selected-count {
+      margin-top: 15px;
+      color: var(--accent);
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .selected-count.show {
+      display: block;
+    }
+
+    .year-filter {
+      margin-top: 20px;
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .filter-select {
+      padding: 12px 20px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.4);
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      min-width: 180px;
+    }
+
+    .filter-select option {
+      background: #1a1a1a;
+      color: white;
+    }
+
+    .suggestions {
+      margin-top: 25px;
+      text-align: left;
+    }
+
+    .suggestions h3 {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 15px;
+    }
+
+    .suggestion-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .suggestion-tag {
+      padding: 10px 20px;
+      background: var(--bg-glass);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-family: 'Poppins', sans-serif;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .suggestion-tag:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 60px 20px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+    }
+
+    .section-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+
+    .browse-btn {
+      padding: 14px 30px;
+      background: var(--gradient-primary);
+      color: white;
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+
+    .movie-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 30px;
+    }
+
+    .movie-card {
+      background: var(--gradient-card);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: all 0.4s ease;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .movie-card:hover {
+      transform: translateY(-15px);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), 0 0 40px var(--primary-glow);
+      border-color: var(--primary);
+    }
+
+    .movie-poster {
+      width: 100%;
+      height: 300px;
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .movie-poster img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .movie-card:hover .movie-poster img {
+      transform: scale(1.1);
+    }
+
+    .poster-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      padding: 20px;
+      text-align: center;
+      background: linear-gradient(135deg, rgba(229, 9, 20, 0.1), rgba(102, 126, 234, 0.1));
+    }
+
+    .poster-placeholder .poster-icon {
+      font-size: 3.5rem;
+      margin-bottom: 12px;
+      opacity: 0.7;
+    }
+
+    .poster-placeholder .poster-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .poster-placeholder .poster-year {
+      font-size: 0.75rem;
+      color: var(--accent);
+      margin-top: 8px;
+      padding: 4px 12px;
+      background: rgba(245, 197, 24, 0.2);
+      border-radius: 12px;
+    }
+
+    .movie-rating-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent);
+      z-index: 2;
+    }
+
+    .movie-info {
+      padding: 20px;
+    }
+
+    .movie-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .movie-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-secondary);
+    }
+
+    .movie-year {
+      padding: 4px 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+
+    .movie-genres {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 10px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 50px 20px;
+      color: var(--text-secondary);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    footer a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 2.2rem;
+      }
+
+      .stats {
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .search-input-group {
+        flex-direction: column;
+      }
+
+      .movie-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      }
+
+      .movie-poster {
+        height: 220px;
+      }
+
+      .genre-label {
+        padding: 8px 15px;
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-animation"></div>
+
+  <section class="hero">
+    <div class="hero-content">
+      <span class="hero-badge">🎬 AI-Powered Movie Recommendations</span>
+      <h1>Movie Recommender</h1>
+      <p>Temukan film terbaik dari <strong>{{ movie_count|default(27000) }}+</strong> koleksi film dengan Machine
+        Learning</p>
+
+      <div class="stats">
+        <div class="stat-item">
+          <div class="stat-number">{{ movie_count|default(27000) }}+</div>
+          <div class="stat-label">Film Tersedia</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">{{ genres|length }}</div>
+          <div class="stat-label">Genre</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">20M+</div>
+          <div class="stat-label">Rating User</div>
+        </div>
       </div>
 
-      <div class="card">
-        <!-- Feature Highlights -->
-        <div class="features-grid">
-          <div class="feature-card">
-            <div class="feature-icon">🔍</div>
-            <div class="feature-title">Smart Search</div>
-            <div class="feature-desc">AI-powered recommendations</div>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">🎬</div>
-            <div class="feature-title">Live Images</div>
-            <div class="feature-desc">Scraped from MyAnimeList</div>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">📊</div>
-            <div class="feature-title">Advanced Filters</div>
-            <div class="feature-desc">Type, Year, Genre</div>
-          </div>
-        </div>
-
-        <form action="/recommend" method="POST" class="search-box">
-          <div class="filter-group">
-              <input
-                list="anime-list"
-                type="text"
-                name="title"
-                id="search-input"
-                placeholder="Try 'Demon Slayer' or 'Action'..."
-                required
-                autocomplete="off"
-                class="search-input"
-              />
-              
-              <select name="type" class="filter-select">
-                  <option value="">All Types</option>
-                  <option value="TV">TV</option>
-                  <option value="Movie">Movie</option>
-                  <option value="OVA">OVA</option>
-                  <option value="ONA">ONA</option>
-                  <option value="Special">Special</option>
-              </select>
-              
-              <select name="year" class="filter-select">
-                  <option value="">Any Year</option>
-                  {% for y in range(2024, 1989, -1) %}
-                  <option value="{{ y }}">{{ y }}</option>
-                  {% endfor %}
-              </select>
-              
-              <button type="submit" class="btn-search">Search</button>
+      <div class="search-container">
+        <form action="/recommend" method="POST" class="search-form" id="searchForm">
+          <div class="search-input-group">
+            <div class="search-input-wrapper">
+              <input type="text" name="title" id="searchInput" class="search-input"
+                placeholder="🔍 Cari judul film... (atau pilih genre saja)" autocomplete="off">
+              <div class="autocomplete-results" id="autocompleteResults"></div>
+            </div>
+            <button type="submit" class="search-btn">Cari Film</button>
           </div>
 
-          <datalist id="anime-list">
-            {% for t in titles %}
-            <option value="{{ t }}">
-            {% endfor %}
-          </datalist>
+          <!-- Multi-Genre Selection -->
+          <div class="genre-filter-section">
+            <div class="genre-filter-title">🎭 Pilih Genre (bisa pilih lebih dari satu, tanpa judul juga bisa!)</div>
+            <div class="genre-checkboxes">
+              {% for genre in genres %}
+              <input type="checkbox" name="genre" value="{{ genre }}" id="home_genre_{{ genre }}"
+                class="genre-checkbox">
+              <label for="home_genre_{{ genre }}" class="genre-label">{{ genre }}</label>
+              {% endfor %}
+            </div>
+            <div class="selected-count" id="selectedCount">Genre dipilih: <strong id="genreCount">0</strong></div>
+          </div>
+
+          <!-- Year Filter -->
+          <div class="year-filter">
+            <select name="year" class="filter-select">
+              <option value="">📅 Semua Tahun</option>
+              {% for year in years[:50] %}
+              <option value="{{ year }}">{{ year }}</option>
+              {% endfor %}
+            </select>
+          </div>
         </form>
 
-        <!-- Quick Examples -->
-        <div class="quick-examples">
-          <span class="examples-label">Quick Search:</span>
-          <button type="button" class="example-btn" data-query="Action">Action</button>
-          <button type="button" class="example-btn" data-query="Romance">Romance</button>
-          <button type="button" class="example-btn" data-query="Horror">Horror</button>
-          <button type="button" class="example-btn" data-query="Sci-Fi">Sci-Fi</button>
-        </div>
-
-        <!-- Popular Searches -->
-        <div class="popular-searches">
-          Popular: <span class="popular-item">Naruto</span>, <span class="popular-item">Attack on Titan</span>, <span class="popular-item">One Piece</span>
-        </div>
-
-        <!-- Keyboard Hint -->
-        <div class="keyboard-hint">
-          💡 Tip: Press <kbd>/</kbd> to focus search
-        </div>
-
         {% if error %}
-        <div class="error-msg">
-            {{ error }}
+        <div
+          style="background: rgba(229,9,20,0.2); border: 1px solid var(--primary); padding: 15px; border-radius: 12px; margin-top: 20px;">
+          ⚠️ {{ error }}
         </div>
         {% endif %}
+
+        <div class="suggestions" style="margin-top: 25px;">
+          <h3>🔥 Film Populer</h3>
+          <div class="suggestion-tags">
+            {% for title in popular_titles[:8] %}
+            <button type="button" class="suggestion-tag" onclick="searchQuery('{{ title }}')">{{ title[:25] }}{% if
+              title|length > 25 %}...{% endif %}</button>
+            {% endfor %}
+          </div>
+        </div>
       </div>
     </div>
+  </section>
 
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loader">
-        <div class="spinner"></div>
-        <div class="loading-text">Summoning Anime...</div>
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">🏆 Top Rated Movies</h2>
+      <a href="/browse" class="browse-btn">📚 Jelajahi Semua Film →</a>
     </div>
 
-    <script>
-        // Loading overlay
-        document.querySelector('.search-box').addEventListener('submit', function() {
-            document.getElementById('loader').style.display = 'flex';
-        });
+    <div class="movie-grid">
+      {% for movie in popular_movies %}
+      <div class="movie-card">
+        <div class="movie-poster" onclick="window.location.href='/movie/{{ movie.title }}'">
+          {% if movie.poster %}
+          <img src="{{ movie.poster }}" alt="{{ movie.title }}" loading="lazy">
+          {% else %}
+          <div class="poster-placeholder">
+            <span class="poster-icon">🎬</span>
+            <span class="poster-title">{{ movie.title }}</span>
+            <span class="poster-year">{{ movie.year }}</span>
+          </div>
+          {% endif %}
+          <div class="movie-rating-badge">⭐ {{ movie.rating }}</div>
+        </div>
+        <div class="movie-info">
+          <div class="movie-title" title="{{ movie.title }}">{{ movie.title }}</div>
+          <div class="movie-meta">
+            <span class="movie-year">{{ movie.year }}</span>
+          </div>
+          <div class="movie-genres">{{ movie.genres }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
 
-        // Rotating placeholder
-        const placeholders = [
-            "Try 'Demon Slayer' or 'Action'...",
-            "Try 'Naruto' or 'Shonen'...",
-            "Try 'Death Note' or 'Thriller'...",
-            "Try 'Your Name' or 'Romance'..."
-        ];
-        let currentIndex = 0;
-        const searchInput = document.getElementById('search-input');
-        
-        setInterval(() => {
-            currentIndex = (currentIndex + 1) % placeholders.length;
-            searchInput.placeholder = placeholders[currentIndex];
-        }, 3000);
+  <footer>
+    <p>🎬 <strong>Movie Recommender</strong> - Sistem Rekomendasi Film dengan Machine Learning</p>
+    <p>Data dari MovieLens Dataset • <a href="/browse">Jelajahi Semua</a></p>
+  </footer>
 
-        // Keyboard shortcut (/)
-        document.addEventListener('keydown', function(e) {
-            if (e.key === '/' && document.activeElement !== searchInput) {
-                e.preventDefault();
-                searchInput.focus();
+  <script>
+    const searchInput = document.getElementById('searchInput');
+    const autocompleteResults = document.getElementById('autocompleteResults');
+    const searchForm = document.getElementById('searchForm');
+    const checkboxes = document.querySelectorAll('.genre-checkbox');
+    const selectedCountDiv = document.getElementById('selectedCount');
+    const genreCount = document.getElementById('genreCount');
+    let debounceTimer;
+
+    function updateGenreCount() {
+      const checked = document.querySelectorAll('.genre-checkbox:checked').length;
+      genreCount.textContent = checked;
+      selectedCountDiv.classList.toggle('show', checked > 0);
+    }
+
+    checkboxes.forEach(cb => cb.addEventListener('change', updateGenreCount));
+
+    function searchQuery(query) {
+      searchInput.value = query;
+      searchForm.submit();
+    }
+
+    searchInput.addEventListener('input', function () {
+      const query = this.value.trim();
+      clearTimeout(debounceTimer);
+
+      if (query.length < 2) {
+        autocompleteResults.classList.remove('show');
+        return;
+      }
+
+      debounceTimer = setTimeout(() => {
+        fetch(`/api/search?q=${encodeURIComponent(query)}&limit=8`)
+          .then(r => r.json())
+          .then(data => {
+            if (data.length > 0) {
+              autocompleteResults.innerHTML = data.map(m => `
+                                <div class="autocomplete-item" onclick="searchQuery('${m.title.replace(/'/g, "\\'")}')">
+                                    <div>
+                                        <span>${m.title}</span>
+                                        <span style="color:var(--text-secondary);margin-left:10px;">(${m.year || 'N/A'})</span>
+                                    </div>
+                                    ${m.rating ? `<span class="autocomplete-rating">⭐ ${m.rating}</span>` : ''}
+                                </div>
+                            `).join('');
+              autocompleteResults.classList.add('show');
+            } else {
+              autocompleteResults.classList.remove('show');
             }
-        });
+          })
+          .catch(() => autocompleteResults.classList.remove('show'));
+      }, 200);
+    });
 
-        // Quick example buttons
-        document.querySelectorAll('.example-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                searchInput.value = this.dataset.query;
-                searchInput.focus();
-            });
-        });
+    document.addEventListener('click', e => {
+      if (!searchInput.contains(e.target) && !autocompleteResults.contains(e.target)) {
+        autocompleteResults.classList.remove('show');
+      }
+    });
+  </script>
+</body>
 
-        // Popular item clicks
-        document.querySelectorAll('.popular-item').forEach(item => {
-            item.style.cursor = 'pointer';
-            item.addEventListener('click', function() {
-                searchInput.value = this.textContent;
-                searchInput.focus();
-            });
-        });
-    </script>
-  </body>
 </html>

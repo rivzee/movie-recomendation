@@ -1,105 +1,169 @@
-# 🎬 Anime Recommendation System
+# 🎬 Movie Recommendation System
 
-![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
-![Flask](https://img.shields.io/badge/Flask-2.0%2B-green)
-![Scikit-Learn](https://img.shields.io/badge/scikit--learn-ML-orange)
-![License](https://img.shields.io/badge/license-MIT-blue)
+Sistem rekomendasi film berbasis Machine Learning menggunakan dataset MovieLens (27,000+ film dengan 20 juta+ rating).
 
-A smart, content-based anime recommendation engine powered by Machine Learning. This application helps users discover their next favorite anime by analyzing similarity across genres, types, studios, and ratings.
+![Movie Recommender](https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800)
 
-![Project Preview](app/static/hero-banner.png)
-*(Replace with an actual screenshot of your app)*
+## ✨ Fitur
 
-## ✨ Features
+- 🔍 **Pencarian Film** - Cari berdasarkan judul film (contoh: "Batman", "Star Wars", "Toy Story")
+- 🎭 **Pencarian Genre** - Cari berdasarkan genre (contoh: "Action", "Comedy", "Drama")
+- 📊 **Rekomendasi Cerdas** - Sistem menemukan film yang relevan berdasarkan pencarian
+- 🖼️ **Poster Film** - Menampilkan poster dari TMDB API
+- ⭐ **Rating & Statistik** - Menampilkan rating rata-rata dan jumlah votes
+- 🔎 **Autocomplete** - Saran judul film saat mengetik
+- 📈 **Visualisasi** - Grafik perbandingan rating/similarity
+- 🌐 **REST API** - Endpoint API untuk integrasi
 
-- **🔍 Intelligent Search**: Uses fuzzy matching to find anime titles even with typos.
-- **🤖 Hybrid Recommendation Engine**: Combines **K-Means Clustering** to narrow down candidates and **Cosine Similarity** to find the closest matches.
-- **📊 Genre Explorer**: Enter a genre (e.g., "Action", "Romance") to see the top-rated anime in that category.
-- **⚙️ Smart Filters**: Refine recommendations by **Type** (TV, Movie, OVA) and **Premiere Year**.
-- **🖼️ Real-time Metadata**: Dynamically fetches the latest posters and details from MyAnimeList using web scraping.
-- **📈 Data Visualization**: Generates similarity charts and score comparisons on the fly.
+## 🚀 Cara Menjalankan
 
-## 🛠️ Tech Stack
-
-- **Web Framework**: Flask (Python)
-- **Data Manipulation**: Pandas, NumPy
-- **Machine Learning**: Scikit-Learn (K-Means, Cosine Similarity, Scaler)
-- **Visualization**: Matplotlib
-- **Utilities**: RapidFuzz (String Matching), BeautifulSoup (Web Scraping)
-
-## 📂 Project Structure
+### 1. Install Dependencies
 
 ```bash
-├── app/
-│   ├── app.py                # Main Flask application entry point
-│   ├── recommender.py        # Recommendation engine & chart generation logic
-│   ├── static/               # CSS, Images, and generated charts
-│   └── templates/            # HTML templates (Jinja2)
-├── data/
-│   └── dataset.csv           # Raw source dataset
-├── models/
-│   ├── anime_with_clusters.csv # Processed data with cluster labels
-│   ├── kmeans.pkl            # Trained K-Means model
-│   └── X_scaled.pkl          # Scaled feature matrix
-├── notebooks/                # Jupyter Notebooks for analysis
-│   ├── 01_eda.ipynb          # Exploratory Data Analysis
-│   ├── 02_preprocess_train.ipynb # Data cleaning & Model training
-│   └── ...
-├── requirements.txt          # Python dependencies
-└── README.md                 # Project documentation
+cd "d:\machine learning\movie-recomendation"
+pip install -r requirements.txt
 ```
 
-## 🚀 Getting Started
+### 2. Jalankan Preprocessing (Opsional - hanya jika belum ada file model)
 
-### Prerequisites
+```bash
+python scripts\preprocess_movies.py
+```
 
-- Python 3.8 or higher
-- Git
+> ⏱️ Proses ini memakan waktu ~3-5 menit karena memproses 20 juta rating
 
-### Installation
+### 3. Jalankan Aplikasi
 
-1.  **Clone the repository**
-    ```bash
-    git clone https://github.com/Gioezzy/movie-recomendation.git
-    cd movie-recomendation
-    ```
+```bash
+cd app
+python app.py
+```
 
-2.  **Install dependencies**
-    It is recommended to use a virtual environment.
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    pip install -r requirements.txt
-    ```
+### 4. Buka di Browser
 
-3.  **Run the Application**
-    ```bash
-    cd app
-    python app.py
-    ```
+Akses: **http://127.0.0.1:5000**
 
-4.  **Open in Browser**
-    Navigate to `http://127.0.0.1:5000` to start using the recommender!
+## 📁 Struktur Project
 
-## 🧠 Data Science Workflow
+```
+movie-recomendation/
+├── app/
+│   ├── app.py                  # Flask web server
+│   ├── movie_recommender.py    # Core recommendation logic
+│   ├── static/                 # CSS, images, charts
+│   └── templates/              # HTML templates
+│       ├── index.html          # Homepage
+│       └── result.html         # Search results page
+├── data/
+│   ├── movie.csv               # Dataset film (27K films)
+│   └── rating.csv              # Dataset rating (20M+ ratings)
+├── models/
+│   ├── movies_with_clusters.csv  # Processed movie data
+│   ├── movies_X_scaled.pkl       # Feature matrix
+│   ├── movies_scaler.pkl         # Scaler model
+│   └── genre_list.pkl            # List of genres
+├── scripts/
+│   └── preprocess_movies.py    # Preprocessing script
+├── notebooks/                  # Jupyter notebooks
+├── requirements.txt            # Dependencies
+└── README.md                   # Dokumentasi ini
+```
 
-This project follows a standard data science pipeline:
+## 🎯 Cara Menggunakan
 
-1.  **EDA (Exploratory Data Analysis)**: Analyzed distribution of genres, ratings, and types.
-2.  **Preprocessing**: Cleaned missing values, encoded categorical features (One-Hot/Label Encoding), and scaled numerical data.
-3.  **Clustering**: Applied **K-Means** to group similar anime into clusters, reducing the search space for recommendations.
-4.  **Similarity**: Used **Cosine Similarity** within the identified cluster to rank the most relevant anime for the user.
+### Pencarian Judul Film
+Ketik judul film untuk menemukan film tersebut beserta yang serupa:
+- `Batman` → Semua film Batman
+- `Star Wars` → Semua film Star Wars
+- `The Matrix` → Film Matrix dan sequel-nya
+- `Avengers` → Film Avengers
+- `Toy Story` → Film Toy Story
 
-## 🤝 Contributing
+### Pencarian Genre
+Ketik nama genre untuk melihat film terbaik di genre tersebut:
+- `Action` → Top film Action
+- `Comedy` → Top film Comedy
+- `Drama` → Top film Drama
+- `Horror` → Top film Horror
+- `Sci-Fi` → Top film Science Fiction
+- `Romance` → Top film Romance
+- `Animation` → Top film Animation
+- `Thriller` → Top film Thriller
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+### Filter
+Gunakan dropdown untuk filter tambahan:
+- **Genre** - Filter berdasarkan genre spesifik
+- **Tahun** - Filter berdasarkan tahun rilis
 
-1.  Fork the Project
-2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4.  Push to the Branch (`git push origin feature/AmazingFeature`)
-5.  Open a Pull Request
+## 🔌 API Endpoints
 
-## 📝 License
+| Endpoint | Method | Deskripsi | Contoh |
+|----------|--------|-----------|--------|
+| `/api/search` | GET | Autocomplete pencarian | `/api/search?q=batman&limit=5` |
+| `/api/recommend` | GET | Rekomendasi film | `/api/recommend?q=Action` |
+| `/api/popular` | GET | Film populer | `/api/popular?genre=Comedy&limit=10` |
+| `/api/genres` | GET | Daftar genre | `/api/genres` |
+| `/api/stats` | GET | Statistik database | `/api/stats` |
 
-This project is licensed under the MIT License.
+### Contoh Response API
+
+```json
+// GET /api/recommend?q=Batman
+{
+  "query": "Batman",
+  "matched": "Hasil pencarian 'Batman'",
+  "count": 10,
+  "results": [
+    {
+      "title": "Batman",
+      "year": 1989,
+      "genres": "Action, Crime, Thriller",
+      "rating": 3.4,
+      "rating_count": 59184,
+      "poster": "https://image.tmdb.org/t/p/w500/..."
+    },
+    ...
+  ]
+}
+```
+
+## 📊 Dataset
+
+Dataset yang digunakan adalah **MovieLens** dari Kaggle:
+- **27,278 film** dengan metadata (judul, genre, tahun)
+- **20,000,264 rating** dari pengguna
+- **20 genre** tersedia
+- **Rentang tahun**: 1874 - 2019
+
+## 🛠️ Teknologi
+
+- **Backend**: Python, Flask
+- **ML/Data**: Pandas, NumPy, Scikit-learn
+- **Frontend**: HTML5, CSS3, JavaScript
+- **Visualisasi**: Matplotlib
+- **Fuzzy Match**: RapidFuzz
+- **Poster**: TMDB API
+
+## 📝 Requirements
+
+```
+pandas
+numpy
+scikit-learn
+matplotlib
+seaborn
+joblib
+flask
+jinja2
+rapidfuzz
+requests
+beautifulsoup4
+```
+
+## 👤 Author
+
+Movie Recommendation System - Machine Learning Project
+
+---
+
+Made with ❤️ using Python & Machine Learning

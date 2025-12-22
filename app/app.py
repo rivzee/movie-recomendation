@@ -2,7 +2,7 @@
 Movie Recommendation System - Flask Web Application
 """
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect
 from movie_recommender import (
     recommend, 
     get_popular_movies, 

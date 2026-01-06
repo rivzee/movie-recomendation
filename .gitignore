@@ -37,3 +37,16 @@ venv.bak/
 # IDEs
 .vscode/
 .idea/
+
+# Large backup files
+*_backup_*.csv
+*.bak
+
+# Data files (will be fetched separately if needed)
+data/*.csv
+
+# Outputs (generated files)
+outputs/
+
+# Large model files (use Git LFS for essential ones)
+models/*_backup_*.csv
